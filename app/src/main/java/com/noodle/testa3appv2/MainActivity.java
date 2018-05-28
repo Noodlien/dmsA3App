@@ -21,6 +21,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+//TODO close all cursors when done?
 public class MainActivity extends AppCompatActivity
 {
 
@@ -37,10 +38,12 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Stuff to display the list of conversations
         arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, conversationList);
         messages = findViewById(R.id.messages);
         messages.setAdapter(arrayAdapter);
 
+        //What happens when a conversation is clicked on
         messages.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
@@ -58,6 +61,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        //Checks for permissions, asks for them if it doesn't have them.
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
         {
@@ -70,59 +74,76 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    //Re-does the whole conversation display
     public void refreshInbox()
     {
+        //Queries and gets a table of all existing conversations
         ContentResolver contentResolver = getContentResolver();
         Cursor convoCursor = contentResolver.query(Uri.parse("content://sms/conversations"), null, null, null, null);
 
+        //Indexes of snippet and thread_id in the table of conversations
         int indexSnippet = convoCursor.getColumnIndex("snippet");
         int indexThreadId = convoCursor.getColumnIndex("thread_id");
 
+        //Checks if table is empty.
         if(!convoCursor.moveToFirst()) return;
 
+        //Clears array adapter, 'cos new stuff going in.
         arrayAdapter.clear();
 
+        //Iterates through each conversation in the Cursor
         do
         {
+            //Gets all messages associated with a particular conversation
             String args[] = {convoCursor.getString(indexThreadId)};
             String cols[] = {"address", "date"};
             Cursor inboxCursor = contentResolver.query(Uri.parse("content://sms/"), cols, "thread_id = ?", args, null);
 
+            //Indexes
             int indexAddress = inboxCursor.getColumnIndex("address");
             int indexDate = inboxCursor.getColumnIndex("date");
 
+            //Checks if Cursor of messages is empty
             if(!inboxCursor.moveToFirst()) return;
 
+            //Gets relevant info from message table, makes Conversation object out of it.
             String phoneNum = inboxCursor.getString(indexAddress);
             String name = getContactName(this, phoneNum);
             String snippet = convoCursor.getString(indexSnippet);
             String date = inboxCursor.getString(indexDate);
             Conversation con = new Conversation(name, phoneNum, snippet, args[0], date);
 
+            //Add to list.
             arrayAdapter.add(con);
         }
         while(convoCursor.moveToNext());
 
+        //Sorts conversation by most recent message
         arrayAdapter.sort(new ConversationComparator());
     }
 
+    //Gets the contact name associated with a given phone number
     public static String getContactName(Context context, String phoneNumber)
     {
+        //This block returns the Contact with the given number, if it exists.
         ContentResolver contentResolver = context.getContentResolver();
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
         Cursor cursor = contentResolver.query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null);
 
+        //If no name found, just use the phone number
         if(cursor == null)
         {
             return phoneNumber;
         }
 
+        //Else, grab the name.
         String name = phoneNumber;
         if(cursor.moveToFirst())
         {
             name = cursor.getString(cursor.getColumnIndex((ContactsContract.PhoneLookup.DISPLAY_NAME)));
         }
 
+        //And close the cursor.
         if(cursor != null && !cursor.isClosed())
         {
             cursor.close();
@@ -131,6 +152,7 @@ public class MainActivity extends AppCompatActivity
         return name;
     }
 
+    //Gets permission to read SMS messages
     public void getPermissionToReadSMS()
     {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED)
@@ -143,6 +165,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    //Gets permission to read contacts
     public void getPermissionToReadContacts()
     {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
@@ -155,6 +178,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    //Triggers when "new" button clicked, starts up CreateConversationActivity
     public void newButtonClicked(View view)
     {
         Intent intent = new Intent(MainActivity.this, CreateConversationActivity.class);
@@ -183,11 +207,13 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    //Just returns this activity, used by MessageBroadcastReceiver
     public static MainActivity instance()
     {
         return inst;
     }
 
+    //Sets up inst, helps track whether this activity is active
     @Override
     public void onStart()
     {
@@ -197,6 +223,7 @@ public class MainActivity extends AppCompatActivity
         refreshInbox();
     }
 
+    //Helps track whether this activity is active
     @Override
     public void onStop()
     {
@@ -209,6 +236,7 @@ public class MainActivity extends AppCompatActivity
         return active;
     }
 
+    //Allows Conversations to be sorted by date
     private class ConversationComparator implements Comparator<Conversation>
     {
         @Override
@@ -217,6 +245,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    //Conversation class, just encapsulates useful information
     private class Conversation
     {
         private String name;

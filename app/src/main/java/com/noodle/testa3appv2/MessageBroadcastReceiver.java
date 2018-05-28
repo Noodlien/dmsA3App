@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
+//Listens for new messages arriving, adds them to the relevant conversation.
 public class MessageBroadcastReceiver extends BroadcastReceiver
 {
     public static final String SMS_BUNDLE = "pdus";
@@ -24,13 +25,15 @@ public class MessageBroadcastReceiver extends BroadcastReceiver
     {
         Toast.makeText(context, "Message get!", Toast.LENGTH_SHORT).show();
 
-
+        //If MainActivity is active, update that with the new message.
         if(MainActivity.isActive())
         {
             Bundle intentExtras = intent.getExtras();
             if(intentExtras != null)
             {
                 MainActivity inst = MainActivity.instance();
+                //MainActivity is still just re-querying when a message arrives, so we gotta wait for
+                //it to arrive in Android's tables.
                 try
                 {
                     TimeUnit.MILLISECONDS.sleep(1000);
@@ -42,6 +45,8 @@ public class MessageBroadcastReceiver extends BroadcastReceiver
                 inst.refreshInbox();//Re-do?
             }
         }
+        //If ConversationActivity is open, add new message there. ConversationActivity will handle
+        //making sure the message belongs to it before displaying it.
         else if(ConversationActivity.isActive())
         {
             Bundle intentExtras = intent.getExtras();
@@ -70,8 +75,8 @@ public class MessageBroadcastReceiver extends BroadcastReceiver
                 {
                     System.out.println("Interrupted");
                 }
+
                 inst.updateConversation(smsMessageStr, address);
-                //inst.refreshConversation();
             }
         }
     }

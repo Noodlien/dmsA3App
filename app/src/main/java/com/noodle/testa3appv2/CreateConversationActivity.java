@@ -21,6 +21,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+//Makes a new conversation. Messy and hacked together, just ignore it unless you're feeling brave.
 public class CreateConversationActivity extends AppCompatActivity
 {
     private ListView cc_contacts;
@@ -81,6 +82,7 @@ public class CreateConversationActivity extends AppCompatActivity
         makeContactList();
     }
 
+    //Gets list of contacts to choose from.
     private void makeContactList()
     {
         ContentResolver contentResolver = getContentResolver();
