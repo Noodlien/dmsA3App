@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -48,6 +49,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     double latitude;
     double longitude;
 
+    EditText latEdit;
+    EditText longEdit;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -73,6 +77,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 intent.putExtra("phoneNumber", con.getPhoneNumber());
                 intent.putExtra("messageBody", con.getMessageBody());
 
+                //
+                intent.putExtra("latitude", latitude);
+                intent.putExtra("longitude", longitude);
+                Log.i("WOT", latitude + "");
+                Log.i("WOT", longitude + "");
+
                 startActivity(intent);
             }
         });
@@ -90,8 +100,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
 
         //
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            getPermissionToLocation();
+        }
         latitude = 0;
         longitude = 0;
+        latEdit = findViewById(R.id.latText);
+        longEdit = findViewById(R.id.longText);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -102,8 +118,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     public void mapsBtn(View view) {
         Intent intent = new Intent(this, MapsActivity.class);
-        intent.putExtra("LATITUDE", "-34");
-        intent.putExtra("LONGITUDE", "130");
+        intent.putExtra("LATITUDE", String.valueOf(latEdit.getText())); // -34
+        intent.putExtra("LONGITUDE", String.valueOf(longEdit.getText())); // 130
         startActivity(intent);
     }
 
@@ -195,6 +211,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 Toast.makeText(this, "Allow permission, dick.", Toast.LENGTH_SHORT).show();
             }
             requestPermissions(new String[]{Manifest.permission.READ_SMS}, REQUEST_CODE);
+        }
+    }
+
+    public void getPermissionToLocation()
+    {
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            if(shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                Toast.makeText(this, "Allow permission for Location", Toast.LENGTH_LONG).show();
+            }
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
         }
     }
 
@@ -301,6 +328,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         } else {
             Toast.makeText(this, "Location not Detected", Toast.LENGTH_SHORT).show();
         }
+
+        Log.i("WOT", latitude + "PLZ");
+        Log.i("WOT", longitude + "PLZ2");
     }
 
     protected void startLocationUpdates() {

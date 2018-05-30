@@ -31,6 +31,9 @@ public class ConversationActivity extends AppCompatActivity {
     private static ConversationActivity inst;
     private static boolean active = false;
 
+    private double latitude;
+    private double longitude;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -46,9 +49,38 @@ public class ConversationActivity extends AppCompatActivity {
         arrayAdapter = new BubbleAdapter(this, R.layout.received_message, testBubbleList);
         conversation.setAdapter(arrayAdapter);
 
+        //
+        latitude = this.getIntent().getDoubleExtra("latitude", latitude);
+        longitude = this.getIntent().getDoubleExtra("longitude", longitude);
+
+        latitude += 1;
+        longitude += 1;
+
         input = findViewById(R.id.input);
 
         refreshConversation();
+    }
+
+    public void onLocationClick(View view)
+    {
+        String message = "Latitude: " + latitude + " Longitude: " + longitude;
+
+        //Check for permission. Ask if we don't have it.
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED)
+        {
+            getPermissionToSendSMS();
+        }
+        else
+        {
+            //Send message
+            smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+            Toast.makeText(this, "Location Message Sent", Toast.LENGTH_SHORT).show();
+        }
+
+        //Add sent message to display, scroll to bottom.
+        arrayAdapter.add(new MessageBubble(message, false));
+        arrayAdapter.notifyDataSetChanged();
+        conversation.smoothScrollToPosition(arrayAdapter.getCount() - 1);
     }
 
     //Executes when send it clicked.
