@@ -6,23 +6,33 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 
 //TODO close all cursors when done?
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener
 {
 
     public static final int REQUEST_CODE = 1;
@@ -31,6 +41,12 @@ public class MainActivity extends AppCompatActivity
     private ListView messages;
     private static MainActivity inst;
     private static boolean active = false;
+
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLocation;
+    private LocationRequest mLocationRequest;
+    double latitude;
+    double longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -72,6 +88,23 @@ public class MainActivity extends AppCompatActivity
         {
             refreshInbox();
         }
+
+        //
+        latitude = 0;
+        longitude = 0;
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    public void mapsBtn(View view) {
+        Intent intent = new Intent(this, MapsActivity.class);
+        intent.putExtra("LATITUDE", "-34");
+        intent.putExtra("LONGITUDE", "130");
+        startActivity(intent);
     }
 
     //Re-does the whole conversation display
@@ -221,6 +254,9 @@ public class MainActivity extends AppCompatActivity
         inst = this;
         active = true;
         refreshInbox();
+
+        //
+        mGoogleApiClient.connect();
     }
 
     //Helps track whether this activity is active
@@ -229,11 +265,79 @@ public class MainActivity extends AppCompatActivity
     {
         super.onStop();
         active = false;
+
+        //
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
     }
 
     public static boolean isActive()
     {
         return active;
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        } startLocationUpdates();
+        mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if(mLocation == null){
+            startLocationUpdates();
+        }
+
+        if (mLocation != null) {
+            latitude = mLocation.getLatitude();
+            longitude = mLocation.getLongitude();
+            Toast.makeText(this, "Location: " + latitude + " " + longitude, Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Location not Detected", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    protected void startLocationUpdates() {
+        // Create the location request
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(3600)
+                .setFastestInterval(60);
+        // Request location updates
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+                mLocationRequest, this);
+        Log.d("reque", "--->>>>");
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
     }
 
     //Allows Conversations to be sorted by date
