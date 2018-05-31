@@ -1,6 +1,7 @@
 package com.noodle.testa3appv2;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -51,7 +52,7 @@ public class CreateConversationActivity extends AppCompatActivity
                 newNumber = newNumber.replaceAll("\\s", "");
 
                 SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(contactItem.getNumber(), null, "TEST", null, null);
+                smsManager.sendTextMessage(contactItem.getNumber(), null, " ", null, null);
 
                 //Hax, could be fine-tuned
                 try
@@ -63,11 +64,14 @@ public class CreateConversationActivity extends AppCompatActivity
                     System.out.println("Interrupted");
                 }
 
+                Long t_id = Telephony.Threads.getOrCreateThreadId(CreateConversationActivity.this, contactItem.getNumber());
+
                 ContentResolver cr = getContentResolver();
-                Cursor cursor = cr.query(Telephony.Threads.CONTENT_URI, null, /*Telephony.Threads.RECIPIENT_IDS + " = " + contactItem.getId()*/
-                        "address = " + newNumber, null, null);
+                Cursor cursor = cr.query(Telephony.Threads.CONTENT_URI, null,
+                        "thread_id = " + t_id, null, null);
 
                 cursor.moveToFirst();
+
 
                 String threadId = cursor.getString(cursor.getColumnIndex("thread_id"));
                 intent.putExtra("name", contactItem.getName());
@@ -115,7 +119,6 @@ public class CreateConversationActivity extends AppCompatActivity
 
             ContactItem contact = new ContactItem(name, number, contactId);
             arrayAdapter.add(contact);
-            System.out.println(contact);
         }
         while(cursor.moveToNext());
     }
