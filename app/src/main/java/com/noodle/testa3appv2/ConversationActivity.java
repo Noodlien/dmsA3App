@@ -56,28 +56,26 @@ public class ConversationActivity extends AppCompatActivity {
         conversation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapter, View v, int position, long thing) {
-                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
                 MessageBubble msg = (MessageBubble) adapter.getItemAtPosition(position);
 
                 msgLatitude = 0;
                 msgLongitude = 0;
 
                 String[] splitArray = msg.getMessageBody().split("\\s+");
-                if (splitArray.length == 4) {
-                    if (splitArray[0].equals("Latitude:") && splitArray[2].equals("Longitude:")) {
-                        msgLatitude = Double.parseDouble(splitArray[1]);
-                        msgLongitude = Double.parseDouble(splitArray[3]);
-                    }
+                if (splitArray.length == 4 && splitArray[0].equals("Latitude:") && splitArray[2].equals("Longitude:")) {
+                    msgLatitude = Double.parseDouble(splitArray[1]);
+                    msgLongitude = Double.parseDouble(splitArray[3]);
+                    Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                    intent.putExtra("latitude", msgLatitude);
+                    intent.putExtra("longitude", msgLongitude);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getApplicationContext(), "That is not a Location message", Toast.LENGTH_SHORT).show();
                 }
-
-                intent.putExtra("latitude", msgLatitude);
-                intent.putExtra("longitude", msgLongitude);
-
-                startActivity(intent);
             }
         });
 
-        //
+        // Get users Location passed from Main Activity
         latitude = this.getIntent().getDoubleExtra("latitude", latitude);
         longitude = this.getIntent().getDoubleExtra("longitude", longitude);
 

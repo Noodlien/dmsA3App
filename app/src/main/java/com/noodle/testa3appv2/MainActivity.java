@@ -49,9 +49,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     double latitude;
     double longitude;
 
-    EditText latEdit;
-    EditText longEdit;
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -102,20 +99,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         // Location
         latitude = 0;
         longitude = 0;
-        latEdit = findViewById(R.id.latText);
-        longEdit = findViewById(R.id.longText);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
-    }
-
-    public void mapsBtn(View view) {
-        Intent intent = new Intent(this, MapsActivity.class);
-        intent.putExtra("latitude", latEdit.getText());
-        intent.putExtra("longitude", longEdit.getText());
-        startActivity(intent);
     }
 
     //Re-does the whole conversation display
