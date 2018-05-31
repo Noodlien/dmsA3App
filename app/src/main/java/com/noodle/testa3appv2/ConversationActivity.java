@@ -2,6 +2,7 @@ package com.noodle.testa3appv2;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,7 +11,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -31,8 +34,10 @@ public class ConversationActivity extends AppCompatActivity {
     private static ConversationActivity inst;
     private static boolean active = false;
 
-    private double latitude;
-    private double longitude;
+    private double latitude; // Users lat
+    private double longitude; // Users long
+    private double msgLatitude; // Latitude in message
+    private double msgLongitude; // Longitude in message
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -48,13 +53,33 @@ public class ConversationActivity extends AppCompatActivity {
         conversation = findViewById(R.id.conversation);
         arrayAdapter = new BubbleAdapter(this, R.layout.received_message, testBubbleList);
         conversation.setAdapter(arrayAdapter);
+        conversation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View v, int position, long thing) {
+                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                MessageBubble msg = (MessageBubble) adapter.getItemAtPosition(position);
+
+                msgLatitude = 0;
+                msgLongitude = 0;
+
+                String[] splitArray = msg.getMessageBody().split("\\s+");
+                if (splitArray.length == 4) {
+                    if (splitArray[0].equals("Latitude:") && splitArray[2].equals("Longitude:")) {
+                        msgLatitude = Double.parseDouble(splitArray[1]);
+                        msgLongitude = Double.parseDouble(splitArray[3]);
+                    }
+                }
+
+                intent.putExtra("latitude", msgLatitude);
+                intent.putExtra("longitude", msgLongitude);
+
+                startActivity(intent);
+            }
+        });
 
         //
         latitude = this.getIntent().getDoubleExtra("latitude", latitude);
         longitude = this.getIntent().getDoubleExtra("longitude", longitude);
-
-        latitude += 1;
-        longitude += 1;
 
         input = findViewById(R.id.input);
 

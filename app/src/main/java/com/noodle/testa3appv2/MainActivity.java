@@ -77,11 +77,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 intent.putExtra("phoneNumber", con.getPhoneNumber());
                 intent.putExtra("messageBody", con.getMessageBody());
 
-                //
+                // Location
                 intent.putExtra("latitude", latitude);
                 intent.putExtra("longitude", longitude);
-                Log.i("WOT", latitude + "");
-                Log.i("WOT", longitude + "");
 
                 startActivity(intent);
             }
@@ -89,26 +87,23 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         //Checks for permissions, asks for them if it doesn't have them.
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         {
             getPermissionToReadSMS();
             getPermissionToReadContacts();
+            getPermissionToLocation();
         }
         else
         {
             refreshInbox();
         }
 
-        //
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-        {
-            getPermissionToLocation();
-        }
+        // Location
         latitude = 0;
         longitude = 0;
         latEdit = findViewById(R.id.latText);
         longEdit = findViewById(R.id.longText);
-
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -118,8 +113,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     public void mapsBtn(View view) {
         Intent intent = new Intent(this, MapsActivity.class);
-        intent.putExtra("LATITUDE", String.valueOf(latEdit.getText())); // -34
-        intent.putExtra("LONGITUDE", String.valueOf(longEdit.getText())); // 130
+        intent.putExtra("latitude", latEdit.getText());
+        intent.putExtra("longitude", longEdit.getText());
         startActivity(intent);
     }
 
@@ -307,13 +302,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         } startLocationUpdates();
         mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
@@ -324,13 +312,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if (mLocation != null) {
             latitude = mLocation.getLatitude();
             longitude = mLocation.getLongitude();
-            Toast.makeText(this, "Location: " + latitude + " " + longitude, Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(this, "Location not Detected", Toast.LENGTH_SHORT).show();
         }
-
-        Log.i("WOT", latitude + "PLZ");
-        Log.i("WOT", longitude + "PLZ2");
     }
 
     protected void startLocationUpdates() {
@@ -341,18 +325,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .setFastestInterval(60);
         // Request location updates
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
-                mLocationRequest, this);
-        Log.d("reque", "--->>>>");
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     @Override
