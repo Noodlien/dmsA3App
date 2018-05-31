@@ -95,9 +95,13 @@ public class ConversationActivity extends AppCompatActivity {
         }
         else
         {
-            //Send message
-            smsManager.sendTextMessage(phoneNumber, null, message, null, null);
-            Toast.makeText(this, "Location Message Sent", Toast.LENGTH_SHORT).show();
+            if (latitude != 0 && longitude != 0) {
+                //Send message
+                smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+                Toast.makeText(this, "Location Message Sent", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Location not detected", Toast.LENGTH_SHORT).show();
+            }
         }
 
         //Add sent message to display, scroll to bottom.
