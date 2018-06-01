@@ -29,7 +29,11 @@ import com.google.android.gms.location.LocationServices;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-//TODO close all cursors when done?
+/**
+ * Main Acitivity of the app
+ * Craig Fraser 15889604
+ * Connor Hewett 15903849
+ */
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener
 {
     public static final int REQUEST_CODE = 1;

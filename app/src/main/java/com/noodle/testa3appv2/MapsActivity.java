@@ -13,6 +13,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 /**
  * Activity to display a Map with marker of the position from the location message pressed in
  * ConversationActivity
+ * Craig Fraser 15889604
+ * Connor Hewett 15903849
  */
 public class MapsActivity extends FragmentActivity implements  OnMapReadyCallback {
 

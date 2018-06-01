@@ -9,8 +9,11 @@ import android.widget.TextView;
 
 import java.util.List;
 
-//Used for the left-right style chat alignment. Not totally sure how it works.
-
+/**
+ * Used for the left-right style chat alignment.
+ * Craig Fraser 15889604
+ * Connor Hewett 15903849
+ */
 public class BubbleAdapter extends ArrayAdapter<MessageBubble>
 {
     private Activity activity;

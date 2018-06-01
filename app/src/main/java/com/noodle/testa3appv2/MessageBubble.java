@@ -1,7 +1,10 @@
 package com.noodle.testa3appv2;
 
-//Also used for the left-right style chat alignment. Don't really know how this works, either.
-
+/**
+ * Also used for the left-right style chat alignment. Don't really know how this works, either.
+ * Craig Fraser 15889604
+ * Connor Hewett 15903849
+ */
 public class MessageBubble
 {
     private String messageBody;

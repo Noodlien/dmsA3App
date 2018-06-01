@@ -17,7 +17,11 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-//Makes a new conversation. Messy and hacked together, just ignore it unless you're feeling brave.
+/**
+ * Makes a new conversation.
+ * Craig Fraser 15889604
+ * Connor Hewett 15903849
+ */
 public class CreateConversationActivity extends AppCompatActivity
 {
     private ListView cc_contacts;

@@ -9,7 +9,11 @@ import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
-//Listens for new messages arriving, adds them to the relevant conversation.
+/**
+ * Listens for new messages arriving, adds them to the relevant conversation.
+ * Craig Fraser 15889604
+ * Connor Hewett 15903849
+ */
 public class MessageBroadcastReceiver extends BroadcastReceiver
 {
     public static final String SMS_BUNDLE = "pdus";

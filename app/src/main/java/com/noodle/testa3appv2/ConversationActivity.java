@@ -20,7 +20,11 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-//This activity displays a particular conversation
+/**
+ * This activity displays a particular conversation
+ * Craig Fraser 15889604
+ * Connor Hewett 15903849
+ */
 public class ConversationActivity extends AppCompatActivity {
 
     private ArrayAdapter arrayAdapter;
