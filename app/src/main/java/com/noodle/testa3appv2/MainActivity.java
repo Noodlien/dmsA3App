@@ -32,7 +32,6 @@ import java.util.Comparator;
 //TODO close all cursors when done?
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener
 {
-
     public static final int REQUEST_CODE = 1;
     private ArrayAdapter arrayAdapter;
     private ArrayList<Conversation> conversationList = new ArrayList<Conversation>();
@@ -75,8 +74,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 intent.putExtra("threadId", con.getThread());
                 intent.putExtra("phoneNumber", con.getPhoneNumber());
                 intent.putExtra("messageBody", con.getMessageBody());
-
-                // Location
                 intent.putExtra("latitude", latitude);
                 intent.putExtra("longitude", longitude);
 
@@ -193,12 +190,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         {
             if(shouldShowRequestPermissionRationale(Manifest.permission.READ_SMS))
             {
-                Toast.makeText(this, "Allow permission, dick.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Allow permission for SMS.", Toast.LENGTH_SHORT).show();
             }
             requestPermissions(new String[]{Manifest.permission.READ_SMS}, REQUEST_CODE);
         }
     }
 
+    //Gets permission to access Location
     public void getPermissionToLocation()
     {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
@@ -217,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         {
             if(shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS))
             {
-                Toast.makeText(this, "Allow permission, dick.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Allow permission to read Contacts.", Toast.LENGTH_SHORT).show();
             }
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_CODE);
         }
@@ -227,7 +225,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void newButtonClicked(View view)
     {
         Intent intent = new Intent(MainActivity.this, CreateConversationActivity.class);
-
         startActivity(intent);
     }
 
@@ -267,7 +264,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         active = true;
         refreshInbox();
 
-        //
         mGoogleApiClient.connect();
     }
 
@@ -278,7 +274,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onStop();
         active = false;
 
-        //
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
@@ -326,14 +321,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
 
     @Override
-    public void onLocationChanged(Location location) {
-
-    }
+    public void onLocationChanged(Location location) {}
 
     //Allows Conversations to be sorted by date
     private class ConversationComparator implements Comparator<Conversation>

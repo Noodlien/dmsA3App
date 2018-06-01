@@ -3,7 +3,6 @@ package com.noodle.testa3appv2;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -11,6 +10,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+/**
+ * Activity to display a Map with marker of the position from the location message pressed in
+ * ConversationActivity
+ */
 public class MapsActivity extends FragmentActivity implements  OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -22,6 +25,7 @@ public class MapsActivity extends FragmentActivity implements  OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        // Get the latitude and longitude in the intent passed to this Activity
         latitude = this.getIntent().getDoubleExtra("latitude", latitude);
         longitude = this.getIntent().getDoubleExtra("longitude", longitude);
 
@@ -45,7 +49,7 @@ public class MapsActivity extends FragmentActivity implements  OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
+        // Add a marker on the location and move the camera
         LatLng location = new LatLng(latitude, longitude);
         mMap.addMarker(new MarkerOptions().position(location).title("Marker on location"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(location));
